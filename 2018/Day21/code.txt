@@ -1,0 +1,33 @@
+seti 123 0 5 //i5 = 123
+bani 5 456 5 //i5 = i5 & 456
+eqri 5 72 5 // i5 = i5 == 72
+addr 5 2 2 // ip += i5 //jump to ln 6
+seti 0 0 2 // ip = 0 //jump to ln 0
+seti 0 9 5 // i5 = 0
+bori 5 65536 3 // i3 = i5 | 65536
+seti 7586220 4 5 // i5 = 7586220
+bani 3 255 1 // i1 = i3 & 255
+addr 5 1 5 // i5 += i1
+bani 5 16777215 5 // i5 = i5 & 16777215
+muli 5 65899 5 // i5 *= 65899
+bani 5 16777215 5 i5 = i5 & 16777215
+gtir 256 3 1 // i1 = 256 > i3
+addr 1 2 2 // ip += i1 // if 256 > 13 jump to ln 17
+addi 2 1 2 // ip += 1  // jump to ln 18
+seti 27 9 2 // ip = 27 // jump to ln 29
+seti 0 9 1 // i1 = 0
+addi 1 1 4 // i4 = i1 + 1
+muli 4 256 4 // i4 *= 256
+gtrr 4 3 4 // i4 = i4 > i3
+addr 4 2 2 // ip += i4 //if i4 > i3 jump to ln 24
+addi 2 1 2 // ip += 1 //jump to ln 25
+seti 25 4 2 // ip = 25 //jump to ln 27
+addi 1 1 1 // i1 += 1
+seti 17 2 2 // ip = 17 //jump to ln 19
+setr 1 6 3 // i3 = i1
+seti 7 8 2 // ip = 7 //jump to ln 9
+eqrr 5 0 1 // i1 = i5 == i0 //if i5 == i0 terminate
+addr 1 2 2 // ip += i1
+seti 5 0 2 // ip = 5 //jump to ln 7
+
+#ip 2

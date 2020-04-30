@@ -1,0 +1,1 @@
+print(eval(''.join(open("input1.txt", "r").readlines()).replace('\n','')))
