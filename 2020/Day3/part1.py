@@ -1,3 +1,5 @@
+print([line[(posY * 3) % len(line)] for posY, line in enumerate([s.rstrip() for s in open("input.txt", "r").readlines()])].count('#'))
+
 myin = [s.rstrip() for s in open("input.txt", "r").readlines()]
 posY = 0
 posX = 0
