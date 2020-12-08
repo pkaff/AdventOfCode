@@ -3,7 +3,6 @@ import queue
 
 myinput = [l.rstrip("\n.") for l in open("input.txt", "r").readlines()]
 adjList = defaultdict(list)
-revAdjList = defaultdict(list)
 for l in myinput:
     outerBag, l2 = l.split("s contain ")
     innerBags = l2.split(", ")
@@ -13,7 +12,6 @@ for l in myinput:
             continue
         innerBagColor = innerLine[2:].rstrip("s")
         adjList[outerBag].append((int(nBags), innerBagColor))
-        revAdjList[innerBagColor].append(outerBag)
 
 def DFS(adjList, bag, nCurrentBags):
     if not adjList[bag]:
