@@ -1,5 +1,5 @@
 #pragma once
-#include "Problem.h"
+#include "../Problem.h"
 #include <utility>
 #include <algorithm>
 #include <ranges>
@@ -9,13 +9,12 @@ class Day1 : public Problem {
 private:
     string input;
 public:
-    Day1(string&& inputFile) : Problem(forward<string>(inputFile)) {
+    Day1() : Problem("day1") {
         solve();
     }
 protected:
     void parse() {
         ifstream istream;
-        cout << "opening input file " << inputFile << endl;
         istream.open(inputFile);
         getline(istream, input);
     }

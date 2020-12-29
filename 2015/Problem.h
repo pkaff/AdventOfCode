@@ -2,13 +2,15 @@
 #include <string>
 #include <iostream>
 #include <fstream>
+#include "AoCUtility.h"
 
 using namespace std; //This is a toy project. Obviously don't do this normally...
+using namespace aoc_utility; //same here
 
 class Problem {
 public:
     Problem() = delete;
-    Problem(std::string&& inputFile) : inputFile(std::move(inputFile)) {}
+    Problem(std::string&& prefix) : inputFile(std::move(prefix) + "/input.txt") {}
 protected:
     std::string inputFile;
 
