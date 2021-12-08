@@ -1,5 +1,4 @@
 import sys
-from statistics import median
 myin = list(map(int, open("input.txt", "r").read().replace('\n', '').split(',')))
 minstart = min(myin)
 maxstart = max(myin)
