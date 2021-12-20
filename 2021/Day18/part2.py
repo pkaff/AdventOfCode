@@ -1,6 +1,5 @@
 from math import floor, ceil
 import re
-from itertools import permutations
 nbrs = [[int(char) if char.isdigit() else char for char in re.findall(r'\d+|[\[\]]', line)] for line in open("input.txt", "r").readlines()]
 
 def split(snail_lst, pos):
