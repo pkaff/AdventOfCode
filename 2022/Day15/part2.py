@@ -1,48 +1,53 @@
-from collections import defaultdict
+import re
 
-input = [line.strip('\n').split(' -> ') for line in open("input.txt", "r").readlines()]
-walls = defaultdict(lambda: False)
+def manhattan_dist(sensor, beacon):
+    x, y = sensor
+    xx, yy = beacon
+    return abs(x - xx) + abs(y - yy)
 
-maxY = 0
+class Sensor:
+    def __init__(self, sensor, beacon):
+        self.center = sensor
+        dist = manhattan_dist(sensor, beacon)
+        self.max_dist = dist
+    def get_row_range(self, row):
+        if row > self.center[1] + self.max_dist or row < self.center[1] - self.max_dist:
+            return None
 
-for connections in input:
-    for point_from, point_to in zip(connections[:-1], connections[1:]):
-        fromx, fromy = list(map(int, point_from.split(',')))
-        tox, toy = list(map(int, point_to.split(',')))
-        if fromx == tox:
-            for y in range(min(fromy, toy), max(fromy, toy) + 1):
-                walls[(fromx, y)] = True
-        elif fromy == toy:
-            for x in range(min(fromx, tox), max(fromx, tox) + 1):
-                walls[(x, fromy)] = True
-        maxY = max(maxY, max(fromy, toy))
+        dist_from_center = abs(self.center[1] - row)
+        start = -(self.max_dist - dist_from_center)
+        stop = self.max_dist - dist_from_center
+        return range(self.center[0] + start, self.center[0] + stop + 1)
 
-maxY += 2
+def merge(sensor_ranges):
+    merged = [sensor_ranges[0]]
+    for current in sensor_ranges:
+        previous = merged[-1]
+        if current.start <= previous.stop:
+            merged[-1] = range(min(current.start, previous.start), max(current.stop, previous.stop))
+        else:
+            merged.append(current)
+    return merged
 
-resting = set()
+input = [list(map(int, re.findall(r'-?\d+', line.strip('\n')))) for line in open("input.txt", "r").readlines()]
+input = [((lst[0], lst[1]), (lst[2], lst[3])) for lst in input]
+sensor_points = [lst[0] for lst in input]
+beacons = [lst[1] for lst in input]
 
-def fill(coord):
-    x = coord[0]
-    y = coord[1]
-    below = (x, y + 1)
+sensors = []
+for sensor, beacon in zip(sensor_points, beacons):
+    sensors.append(Sensor(sensor, beacon))
 
-    if not walls[below] and below not in resting and below[1] < maxY:
-        return fill(below)
-
-    left = (x - 1, y + 1)
-    right = (x + 1, y + 1)
-    if not walls[left] and left not in resting and left[1] < maxY:
-        return fill(left)
-    elif not walls[right] and right not in resting and right[1] < maxY:
-        return fill(right)
-
-    resting.add((x, y))
-
-    if (x, y) == (500, 0):
-        return False
-
-    return True
-
-while fill((500, 0)):
-    pass
-print(len(resting))
+for row in range(4000000 + 1, 0, -1):
+    sensor_ranges = []
+    for sensor in sensors:
+        row_range = sensor.get_row_range(row)
+        if row_range:
+            sensor_ranges.append(row_range)
+    sensor_ranges.sort(key=lambda r: r.start)
+    sensor_ranges = merge(sensor_ranges)
+    if len(sensor_ranges) > 1:
+        x = sensor_ranges[0].stop
+        y = row
+        print(x * 4000000 + y)
+        break
