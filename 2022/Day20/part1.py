@@ -1,24 +1,23 @@
 from collections import deque
-from itertools import cycle
-import numpy as np
 
-output = [int(line) for line in open("testinput.txt", "r").readlines()]
+input = [int(line) for line in open("input.txt", "r").readlines()]
 
-ix_map = np.array(ix for ix in range(len(input)))
+output = deque(input)
+ix_map = deque([ix for ix in range(len(input))])
 
-for old_ix, num in enumerate(output[:]):
-    from_ix = ix_map[old_ix]
-    to_ix = (from_ix + num) % len(output)
-    if to_ix == from_ix:
+for old_ix, num in enumerate(input):
+    if num == 0:
         continue
-    if from_ix < to_ix:
-        output[from_ix:to_ix], output[to_ix] = output[from_ix + 1:to_ix + 1], output[from_ix]
-        ix_map[from_ix:to_ix] -= 1
-        ix_map[from_ix] = to_ix
-    elif from_ix > to_ix:
-        output[to_ix], output[to_ix + 2:from_ix + 1] = output[from_ix], output[to_ix + 1:from_ix]
-        ix_map[to_ix + 1:from_ix] += 1
-        ix_map[from_ix] = to_ix
 
-    break
-# look at 2022 day23?
+    new_ix = ix_map.index(old_ix)
+    del output[new_ix]
+    del ix_map[new_ix]
+
+    output.rotate(-num)
+    ix_map.rotate(-num)
+
+    output.insert(new_ix, num)
+    ix_map.insert(new_ix, old_ix)
+zero_ix = output.index(0)
+ixs_to_find = [(zero_ix + k*1000) % len(output) for k in range(1, 4)]
+print(sum([output[ix] for ix in ixs_to_find]))
