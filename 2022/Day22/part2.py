@@ -13,6 +13,29 @@ def dir_val(dir):
     dirs = ['R', 'D', 'L', 'U']
     return dirs.index(dir)
 
+def get_next_side_pos_and_dir(col, row, dir):
+    next_row = row
+    next_col = col
+    if dir == 'R':
+        next_col += 1
+    elif dir == 'D':
+        next_row += 1
+    elif dir == 'L':
+        next_col -= 1
+    elif dir == 'U':
+        next_row -= 1
+
+    if row in range(1, 51) and col in range(51, 151):
+        # first 50 rows is top and right side
+        if next_col > 150:
+            # Wrap to bottom layer
+            rel_row = row - 0
+            next_row = 100 + rel_row # bottom starts at row 100
+            next_col = 150 # bottom ends at col 150
+            dir = 'L' # reverse direction
+        if next_col < 51:
+
+
 input_map, input_path = open("input.txt", "r").read().split('\n\n')
 mymap = {(col + 1, row + 1): c for row, line in enumerate(input_map.split('\n')) for col, c in enumerate(line) if c != ' '}
 
