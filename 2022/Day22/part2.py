@@ -6,16 +6,19 @@ def turn(cur_dir, to_turn):
     dirs = ['R', 'D', 'L', 'U']
     if to_turn == 'R':
         return dirs[(dirs.index(cur_dir) + 1) % len(dirs)]
-    if to_turn == 'L':
+    elif to_turn == 'L':
         return dirs[(dirs.index(cur_dir) - 1) % len(dirs)]
+    else:
+        assert(False)
 
 def dir_val(dir):
     dirs = ['R', 'D', 'L', 'U']
     return dirs.index(dir)
 
-def get_next_side_pos_and_dir(col, row, dir):
+def get_next_pos_and_dir(col, row, dir):
     next_row = row
     next_col = col
+    next_dir = dir
     if dir == 'R':
         next_col += 1
     elif dir == 'D':
@@ -24,17 +27,91 @@ def get_next_side_pos_and_dir(col, row, dir):
         next_col -= 1
     elif dir == 'U':
         next_row -= 1
-
-    if row in range(1, 51) and col in range(51, 151):
-        # first 50 rows is top and right side
-        if next_col > 150:
-            # Wrap to bottom layer
-            rel_row = row - 0
-            next_row = 100 + rel_row # bottom starts at row 100
-            next_col = 150 # bottom ends at col 150
-            dir = 'L' # reverse direction
+    # Top
+    if row in range(1, 51) and col in range(51, 101):
         if next_col < 51:
-
+            # Wrap to left side
+            next_row = 101 + (50 - row) #row 1 => row 150 and row 50 => row 101
+            next_col = 1
+            next_dir = 'R'
+        elif next_row < 1:
+            # Wrap to front side
+            next_row = 151 + (col - 51) #col 51 => row 151 and col 100 => row 200
+            next_col = 1
+            next_dir = 'R'
+    # Right
+    elif row in range(1, 51) and col in range(101, 151):
+        if next_col > 150:
+            # Wrap to bottom side
+            next_row = 101 + (50 - row) # row 1 => row 150 and row 50 => row 101
+            next_col = 100
+            next_dir = 'L'
+        elif next_row < 1:
+            # Wrap to front side
+            next_row = 200
+            next_col = 1 + (col - 101) #col 101 => 1 and 150 => 50
+            next_dir = 'U'
+        elif next_row > 50:
+            # Wrap to back side
+            next_row = 51 + (col - 101) #col 101 => row 51 and col 150 => row 100
+            next_col = 100
+            next_dir = 'L'
+    # Back
+    elif row in range(51, 101) and col in range(51, 101):
+        if next_col > 100:
+            # Wrap to right side
+            next_row = 50
+            next_col = 101 + (row - 51) #row 51 => col 101 and row 100 => col 150
+            next_dir = 'U'
+        elif next_col < 51:
+            # Wrap to left side
+            next_row = 101
+            next_col = 1 + (row - 51) #row 51 => col 1 and row 100 => col 50
+            next_dir = 'D'
+    # Bottom
+    elif row in range(101, 151) and col in range(51, 101):
+        if next_col > 100:
+            # Wrap to right side
+            next_row = 50 + (101 - row) #row 150 =>row 1 and row 101 => row 50
+            next_col = 150
+            next_dir = 'L'
+        elif next_row > 150:
+            # Wrap to front side
+            next_row = 151 + (col - 51) #col 51 => row 151 and col 100 => row 200
+            next_col = 50
+            next_dir = 'L'
+    # Left
+    elif row in range(101, 151) and col in range(1, 51):
+        if next_row < 101:
+            # Wrap to back side
+            next_row = 51 + (col - 1) #col 1 => row 51 and col 50 => row 100
+            next_col = 51
+            next_dir = 'R'
+        elif next_col < 1:
+            # Wrap to top side
+            next_row = 1 + (150 - row) #row 101 => row 50 and row 150 => row 1
+            next_col = 51
+            next_dir = 'R'
+    # Front
+    elif row in range(151, 201) and col in range(1, 51):
+        if next_col < 1:
+            # Wrap to top side
+            next_row = 1
+            next_col = 51 + (row - 151) #row 200 => col 100 and row 151 => col 51
+            next_dir = 'D'
+        elif next_col > 50:
+            # Wrap to bottom side
+            next_row = 150
+            next_col = 51 + (row - 151) #row 151 => col 51 and row 200 => col 100
+            next_dir = 'U'
+        elif next_row > 200:
+            # Wrap to right side
+            next_row = 1
+            next_col = 101 + (col - 1) #col 1 => col 101 and col 50 => col 150
+            next_dir = 'D'
+    else:
+        assert(False)
+    return (next_col, next_row), next_dir
 
 input_map, input_path = open("input.txt", "r").read().split('\n\n')
 mymap = {(col + 1, row + 1): c for row, line in enumerate(input_map.split('\n')) for col, c in enumerate(line) if c != ' '}
@@ -60,32 +137,12 @@ pos = min([pos for pos in mymap.keys() if pos[1] == 1 and mymap[pos] == '.'], ke
 dir = 'R'
 for step in steps:
     for _ in range(step):
-        col, row = pos
+        next_pos, next_dir = get_next_pos_and_dir(*pos, dir)
 
-        next_row = row
-        next_col = col
-
-        if dir == 'R':
-            next_col += 1
-            if next_col > row_maxs[row]:
-                next_col = row_mins[row]
-        elif dir == 'D':
-            next_row += 1
-            if next_row > col_maxs[col]:
-                next_row = col_mins[col]
-        elif dir == 'L':
-            next_col -= 1
-            if next_col < row_mins[row]:
-                next_col = row_maxs[row]
-        elif dir == 'U':
-            next_row -= 1
-            if next_row < col_mins[col]:
-                next_row = col_maxs[col]
-
-        next_pos = (next_col, next_row)
         if mymap[next_pos] == '#':
             break
         pos = next_pos
+        dir = next_dir
     if turns:
         dir = turn(dir, turns.popleft())
 
