@@ -1,0 +1,1 @@
+print(sum([1 if all([abs(diff) <=3 and abs(diff) >= 1 and diff*(lst[0]-lst[1]) > 0 for diff in list(map(lambda x: x[0] - x[1], zip(lst[:-1], lst[1:])))]) else 0 for lst in [list(map(int, line.split())) for line in open("input.txt", "r").readlines()]]))
