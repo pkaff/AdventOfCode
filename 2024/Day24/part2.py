@@ -1,16 +1,7 @@
 registers, gates = open("input.txt", "r").read().split('\n\n')
-registers = {line.split(': ')[0]: line.split(': ')[1] for line in registers.split('\n')}
-x_regs = list(map(lambda x: registers[x], sorted([reg for reg in registers.keys() if reg[0] == 'x'], key=lambda x: int(x[1:]), reverse=True)))
-y_regs = list(map(lambda x: registers[x], sorted([reg for reg in registers.keys() if reg[0] == 'y'], key=lambda x: int(x[1:]), reverse=True)))
-x_target = int(''.join(x_regs), 2)
-y_target = int(''.join(y_regs), 2)
-target = bin(x_target + y_target)[2:]
+registers = {line.split(': ')[0]: int(line.split(': ')[1]) for line in registers.split('\n')}
 gates = [line.split() for line in gates.split('\n')]
 z_regs = sorted([outgate for _, _, _, _, outgate in gates if outgate[0] == 'z'], key=lambda x:int(x[1:]), reverse=True)
-graph = {}
-for r1, op, r2, _, outreg in gates:
-    assert((r1, op, r2) not in graph)
-    graph[outreg] = (r1, op, r2)
 def str_to_op(op):
     if op == 'AND':
         return '&'
@@ -18,14 +9,20 @@ def str_to_op(op):
         return '|'
     if op == 'XOR':
         return '^'
-def transform_to_inreg(reg):
-    if reg in registers:
-        return registers[reg]
-    r1, op, r2 = graph[reg]
-    return "(" + transform_to_inreg(r1) + str_to_op(op) + transform_to_inreg(r2) + ")"
-    
-for ix, z_reg in enumerate(z_regs):
-    print(transform_to_inreg(z_reg))
-    z_regs[ix] = str(eval(transform_to_inreg(z_reg)))
-print(target)
-print(''.join(z_regs))
+
+wrong = set()
+# Addition requires each bit to be XOR by bits at corresponding index and potential carry-over
+for r1, op, r2, _, out_reg in gates:
+    if out_reg[0] == 'z' and op != 'XOR' and out_reg != 'z45':
+        wrong.add(out_reg)
+    if op == 'XOR' and all([reg[0] not in ['x', 'y', 'z'] for reg in [r1, r2, out_reg]]):
+        wrong.add(out_reg)
+    if op == 'AND' and 'x00' not in [r1, r2]:
+        for or1, oop, or2, _, oout_reg in gates:
+            if (out_reg == or1 or out_reg == or2) and oop != 'OR':
+                wrong.add(out_reg)
+    if op == 'XOR':
+        for or1, oop, or2, _, oout_reg in gates:
+            if (out_reg == or1 or out_reg == or2) and oop == 'OR':
+                wrong.add(out_reg)
+print(','.join(sorted(wrong)))
